@@ -13,7 +13,7 @@ Tick Tick是一款基于Vue.js等前端技术实现的轻量级to-do类demo，�
  
  ## 项目使用说明
 1. 下载该代码，在**本地server环境**下运行index.html即可（建议使用**chrome**浏览器打开）
-2. 直接访问http
+2. 直接访问https://lorienn.github.io/Tick-Tick/
 3. 通过输入时间和需要完成的事项名称以添加事项，在完成事项后为事项打勾，同时可以选择显示/隐藏已完成事项
 <br />
 
