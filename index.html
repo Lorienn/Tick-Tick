@@ -46,7 +46,7 @@
         <br>
 
         <!-- 无内容 -->
-        <Row v-if="todolist.length == 0">
+        <Row v-if="isNull">
             <i-col span="17" offset="5">
                 <p style="font-size: 14px;padding-top: 50px">
                     <Icon type="ios-paw"></Icon>
@@ -56,7 +56,7 @@
         </Row>
         <!-- 有内容 -->
         <article v-else style="height: 60%;overflow-y:scroll">
-            <Row v-for="item in todolist" :key="item.item" style="padding-top:20px;font-size:14px">
+            <Row v-for="item in todolist" :key="item.item" style="padding-top:20px;font-size:14px" v-show="!item.isFinish || isShow">
                 <i-col span="2" offset="4">
                     <Checkbox :checked="item.isFinish" @on-change="toggleFinish(item)"></Checkbox>
                 </i-col>
@@ -66,7 +66,7 @@
                 </i-col>
 
                 <i-col span="8">
-                    <span v-if="!item.isEdit" :class="isCheck.indexOf(item) !== -1 ? 'del' : ''">
+                    <span v-if="!item.isEdit" :class="item.isFinish ? 'del' : ''">
                         {{item.item}}
                     </span>
                     <i-input v-else size="small" :placeholder="item.item" style="width: 90%" :value.sync="newValue"

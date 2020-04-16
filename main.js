@@ -6,8 +6,7 @@ var vm = new Vue({
             todolist: [],
             txt: "",
             newValue: "",
-            isCheck: [],
-            isHide: false,
+            isShow: true,
             tip: "Hide Completed",
             newTime: "",
             spinShow: true
@@ -18,7 +17,7 @@ var vm = new Vue({
             //设置遮罩层
             setTimeout(() => {
                 this.spinShow = false;
-            }, 1500);
+            }, 1000);
             resolve();
         }).then((res) => {
             //检查浏览器是否支持localStorage
@@ -47,17 +46,15 @@ var vm = new Vue({
                 ];
 
                 this.storage["todo"] = JSON.stringify(oldList);
+                this.storage["display"] = JSON.stringify({
+                    isShow: true
+                });
                 this.todolist = oldList;
             } else {
                 //非首次访问页面
                 var arr = JSON.parse(this.storage["todo"]);
-                for (let i = 0; i < arr.length; i++) {
-                    this.todolist.push(arr[i]);
-                    if(arr[i].isFinish == true){
-                        this.isCheck.push(arr[i]);
-                    }
-                }
-                this.toggle();
+                this.todolist = arr;
+                this.isShow = JSON.parse(this.storage["display"]);
             }
         })
     },
@@ -122,28 +119,14 @@ var vm = new Vue({
             var arr = JSON.parse(this.storage["todo"]);
             arr[this.todolist.indexOf(item)].isFinish = item.isFinish;
             this.storage["todo"] = JSON.stringify(arr);
-
-            var i = this.isCheck.indexOf(item);
-            if (i == -1) {
-                this.isCheck.push(item);            
-            } else {
-                this.isCheck.splice(i, 1);
-            }
         },
         //显示/隐藏已完成事项
         toggle() {
-            if (!this.isHide) {
-                for (x of this.isCheck) {
-                    var start = this.todolist.indexOf(x);
-                    this.todolist.splice(start, 1);
-                }
-                this.isHide = !this.isHide;
-                this.tip = "Show Completed";
-            } else {
-                this.todolist = this.todolist.concat(this.isCheck);
-                this.isHide = !this.isHide;
-                this.tip = "Hide Completed";
-            }
+            this.isShow = !this.isShow;
+            var display = {
+                isShow: this.isShow
+            };
+            this.storage["display"] = JSON.stringify(display);
         },
         //格式化日期字符串
         doubleNum(n) {
@@ -159,6 +142,15 @@ var vm = new Vue({
                 hour = this.doubleNum(d.getHours()),
                 min = this.doubleNum(d.getMinutes());
             return `${hour}:${min}`;
+        }
+    },
+    computed: {
+        isNull() {
+            if (this.todolist.length == 0 || this.todolist.every(item => item.isFinish == true)) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 })
