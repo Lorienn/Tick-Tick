@@ -56,37 +56,34 @@
         </Row>
         <!-- 有内容 -->
         <article v-else style="height: 60%;overflow-y:scroll">
-            <CheckboxGroup v-model="isCheck">
-                <Row v-for="item in todolist" :key="item.item" style="padding-top:20px;font-size:14px">
-                    <i-col span="2" offset="4">
-                            <Checkbox @on-change="addCheck(item)"></Checkbox>
-                    </i-col>
+            <Row v-for="item in todolist" :key="item.item" style="padding-top:20px;font-size:14px">
+                <i-col span="2" offset="4">
+                    <Checkbox :checked="item.isFinish" @on-change="toggleFinish(item)"></Checkbox>
+                </i-col>
 
-                    <i-col span="3" style="font-weight: 700">
-                        {{showTime(item)}}
-                    </i-col>
+                <i-col span="3" style="font-weight: 700">
+                    {{showTime(item)}}
+                </i-col>
 
-                    <i-col span="8">
-                        <span v-if="!item.isEdit" :class="isCheck.indexOf(item) !== -1 ? 'del' : ''">
-                            {{item.item}}
-                        </span>
-                        <i-input v-else size="small" :placeholder="item.item" style="width: 90%" :value.sync="newValue"
-                            @on-enter="updateItem(item)"></i-input>
-                    </i-col>
+                <i-col span="8">
+                    <span v-if="!item.isEdit" :class="isCheck.indexOf(item) !== -1 ? 'del' : ''">
+                        {{item.item}}
+                    </span>
+                    <i-input v-else size="small" :placeholder="item.item" style="width: 90%" :value.sync="newValue"
+                        @on-enter="updateItem(item)"></i-input>
+                </i-col>
 
-                    <i-col span="6">
-                        <i-button v-if="!item.isEdit" shape="circle" size="small" icon="md-create"
-                            @click="item.isEdit = true">
-                        </i-button>
-                        <i-button v-else shape="circle" size="small" icon="md-checkmark" @click="updateItem(item)">
-                        </i-button>
-                        <i-button type="error" shape="circle" size="small" icon="md-close" @click="removeItem(item)">
-                        </i-button>
-                    </i-col>
-                </Row>
-            </CheckboxGroup>
+                <i-col span="6">
+                    <i-button v-if="!item.isEdit" shape="circle" size="small" icon="md-create"
+                        @click="item.isEdit = true">
+                    </i-button>
+                    <i-button v-else shape="circle" size="small" icon="md-checkmark" @click="updateItem(item)">
+                    </i-button>
+                    <i-button type="error" shape="circle" size="small" icon="md-close" @click="removeItem(item)">
+                    </i-button>
+                </i-col>
+            </Row>
         </article>
-
         <br>
 
         <Row class="foot">

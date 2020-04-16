@@ -9,7 +9,7 @@ var vm = new Vue({
             isCheck: [],
             isHide: false,
             tip: "Hide Completed",
-            newTime: new Date(),
+            newTime: "",
             spinShow: true
         }
     },
@@ -26,37 +26,38 @@ var vm = new Vue({
                 alert("浏览器不支持localStorage!")
             } else if (localStorage.length == 0) {
                 //首次访问页面
-                const oldList = [{},
-                    {
+                const oldList = [{
                         item: "Morning Run",
                         isEdit: false,
+                        isFinish: false,
                         time: new Date("October 13, 1975 7:00:00")
+                    },
+                    {
+                        item: "Meeting",
+                        isEdit: false,
+                        isFinish: false,
+                        time: new Date("October 13, 1975 10:00:00")
+                    },
+                    {
+                        item: "Blogging",
+                        isEdit: false,
+                        isFinish: false,
+                        time: new Date("October 13, 1975 21:00:00")
                     }
                 ];
-                for (let i = 0; i < oldList.length; i++) {
-                    if (i == 0) {
-                        localStorage["id"] = JSON.stringify(oldList[i]);
-                    } else {
-                        localStorage[oldList[i].item] = JSON.stringify(oldList[i]);
-                    }
-                }
-                this.todolist = [oldList[1]];
-            } else if (localStorage.length == 1 && localStorage.id) {
-                //非首次访问页面，且内容为空
-                this.todolist = [];
+
+                this.storage["todo"] = JSON.stringify(oldList);
+                this.todolist = oldList;
             } else {
                 //非首次访问页面
-                for (let i = 0; i < localStorage.length; i++) {
-                    var
-                        key = localStorage.key(i),
-                        value = JSON.parse(localStorage.getItem(key));
-
-                    if (key == "id") {
-                        continue;
-                    } else {
-                        this.todolist.push(value);
+                var arr = JSON.parse(this.storage["todo"]);
+                for (let i = 0; i < arr.length; i++) {
+                    this.todolist.push(arr[i]);
+                    if(arr[i].isFinish == true){
+                        this.isCheck.push(arr[i]);
                     }
                 }
+                this.toggle();
             }
         })
     },
@@ -78,12 +79,15 @@ var vm = new Vue({
                 var newItem = {
                     item: this.txt,
                     isEdit: false,
+                    isFinish: false,
                     time: this.newTime
                 };
                 this.todolist.push(newItem);
 
                 //写入LS
-                this.storage[this.txt] = JSON.stringify(newItem);
+                var arr = JSON.parse(this.storage["todo"]);
+                arr.push(newItem);
+                this.storage["todo"] = JSON.stringify(arr);
 
                 this.txt = "";
             }
@@ -93,10 +97,9 @@ var vm = new Vue({
             var i = this.todolist.indexOf(item);
 
             //写入LS
-            var newItem = JSON.parse(this.storage[item.item]);
-            newItem.item = this.newValue;
-            this.storage.removeItem(item.item);
-            this.storage[this.newValue] = JSON.stringify(newItem);
+            var arr = JSON.parse(this.storage["todo"]);
+            arr[i].item = this.newValue;
+            this.storage["todo"] = JSON.stringify(arr);
 
             this.todolist[i].item = this.newValue;
             this.newValue = "";
@@ -104,10 +107,28 @@ var vm = new Vue({
         },
         //删
         removeItem(item) {
-            this.todolist.splice(this.todolist.indexOf(item), 1)
+            var index = this.todolist.indexOf(item);
+            this.todolist.splice(index, 1)
 
             //写入LS
-            this.storage.removeItem(item.item);
+            var arr = JSON.parse(this.storage["todo"]);
+            arr.splice(index, 1);
+            this.storage["todo"] = JSON.stringify(arr);
+        },
+        //点击复选框加入已完成事项
+        toggleFinish(item) {
+            item.isFinish = !item.isFinish;
+            //写入LS
+            var arr = JSON.parse(this.storage["todo"]);
+            arr[this.todolist.indexOf(item)].isFinish = item.isFinish;
+            this.storage["todo"] = JSON.stringify(arr);
+
+            var i = this.isCheck.indexOf(item);
+            if (i == -1) {
+                this.isCheck.push(item);            
+            } else {
+                this.isCheck.splice(i, 1);
+            }
         },
         //显示/隐藏已完成事项
         toggle() {
@@ -122,15 +143,6 @@ var vm = new Vue({
                 this.todolist = this.todolist.concat(this.isCheck);
                 this.isHide = !this.isHide;
                 this.tip = "Hide Completed";
-            }
-        },
-        //点击复选框加入已完成事项
-        addCheck(item) {
-            var i = this.isCheck.indexOf(item);
-            if (i == -1) {
-                this.isCheck.push(item);
-            } else {
-                this.isCheck.splice(i, 1);
             }
         },
         //格式化日期字符串
